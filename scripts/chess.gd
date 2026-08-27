@@ -21,6 +21,9 @@ const PIECE_MOVE = preload("uid://xl3na846yk7q")
 const TURN_BLACK = preload("uid://b31753kfiwd4e")
 const TURN_WHITE = preload("uid://1yk2d68ckgwk")
 
+@onready var white_promotion: Control = $"../CanvasLayer/white_promotion"
+@onready var black_promotion: Control = $"../CanvasLayer/black_promotion"
+
 
 @onready var pieces: Node2D = $pieces
 @onready var dots: Node2D = $dot
@@ -30,7 +33,8 @@ var board: Array = []
 var white : bool = true
 var state : bool = false
 var moves = []
-var selected_piece : Vector2 # Stores Vector2(row, col)
+var selected_piece : Vector2 
+var promotion_square  = null
 
 func _ready() -> void:
 	board.append([4, 2, 3, 5, 6, 3, 2, 4])
@@ -42,6 +46,23 @@ func _ready() -> void:
 	board.append([-1, -1, -1, -1, -1, -1, -1, -1])
 	board.append([-4, -2, -3, -5, -6, -3, -2, -4])
 
+	draw_board()
+	
+	var white_pieces = get_tree().get_nodes_in_group("white")
+	var black_pieces = get_tree().get_nodes_in_group("black")
+	
+	for button in white_pieces:
+		button.pressed.connect(on_btn_pressed.bind(button))
+	
+	for button in black_pieces:
+		button.pressed.connect(on_btn_pressed.bind(button))
+
+func on_btn_pressed(btn):
+	var num_char = int(btn.name.substr(0, 1))
+	board[promotion_square.x][promotion_square.y] = -num_char if white else num_char
+	white_promotion.visible = false
+	black_promotion.visible = false
+	promotion_square = null
 	draw_board()
 
 func draw_board() -> void:
@@ -75,7 +96,7 @@ func draw_board() -> void:
 	else: turn.texture = TURN_BLACK
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.is_pressed():
+	if event is InputEventMouseButton and event.is_pressed() and promotion_square == null:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if is_mouse_out_of_bound(): return
 			
@@ -115,6 +136,9 @@ func delete_dots():
 
 func set_move(var1, var2):
 	for i in moves:
+		match board[selected_piece.x][selected_piece.y]:
+			1 : if i.x == 7 : promote(i)
+			-1 : if i.x == 0: promote(i)
 		if i.x == var2 and i.y == var1:
 			board[var2][var1] = board[selected_piece.x][selected_piece.y]
 			board[selected_piece.x][selected_piece.y] = 0
@@ -135,6 +159,11 @@ func get_moves():
 		6: _moves = get_king_moves()
 		
 	return _moves
+
+func promote(i):
+	promotion_square = i
+	white_promotion.visible = white
+	black_promotion.visible = !white
 
 func get_rook_moves():
 	var _moves = []
@@ -222,7 +251,6 @@ func get_knight_moves():
 				_moves.append(pos)
 		
 	return _moves
-
 
 func get_pawns_moves():
 	var _moves = []
