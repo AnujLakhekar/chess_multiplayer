@@ -18,6 +18,10 @@ const WHITE_QUEEN = preload("uid://oqqp46qtmwfu")
 const WHITE_ROOK = preload("uid://ctq0j6xxcqikw")
 const PIECE_MOVE = preload("uid://xl3na846yk7q")
 
+const TURN_BLACK = preload("uid://b31753kfiwd4e")
+const TURN_WHITE = preload("uid://1yk2d68ckgwk")
+
+
 @onready var pieces: Node2D = $pieces
 @onready var dots: Node2D = $dot
 @onready var turn: Node2D = $turn
@@ -66,6 +70,9 @@ func draw_board() -> void:
 				3: holder.texture = WHITE_BISHOP
 				2: holder.texture = WHITE_KNIGHT
 				1: holder.texture = WHITE_PAWN
+	
+	if white: turn.texture = TURN_WHITE
+	else: turn.texture = TURN_BLACK
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.is_pressed():
@@ -80,6 +87,8 @@ func _input(event: InputEvent) -> void:
 				selected_piece = Vector2(row, col)
 				show_option()
 				state = true
+			elif state:
+				set_move(col, row)
 
 func show_option() -> void:
 	moves = get_moves()
@@ -104,6 +113,16 @@ func delete_dots():
 	for child in dots.get_children():
 		child.queue_free()
 
+func set_move(var1, var2):
+	for i in moves:
+		if i.x == var2 and i.y == var1:
+			board[var2][var1] = board[selected_piece.x][selected_piece.y]
+			board[selected_piece.x][selected_piece.y] = 0
+			white = !white
+			draw_board()
+			break;
+	delete_dots()
+	state = false
 
 func get_moves():
 	var _moves = []
