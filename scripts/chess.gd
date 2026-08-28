@@ -36,6 +36,16 @@ var moves = []
 var selected_piece : Vector2 
 var promotion_square  = null
 
+var white_king = false
+var black_king = false
+var white_rook_left = false
+var white_rook_right = false
+var black_rook_left = false
+var black_rook_right = false
+
+
+var en_passent = null
+
 func _ready() -> void:
 	board.append([4, 2, 3, 5, 6, 3, 2, 4])
 	board.append([1, 1, 1, 1, 1, 1, 1, 1])
@@ -135,16 +145,77 @@ func delete_dots():
 		child.queue_free()
 
 func set_move(var1, var2):
+	var end_pos = Vector2(var2, var1)
+	var just_now =false
+	
 	for i in moves:
-		match board[selected_piece.x][selected_piece.y]:
-			1 : if i.x == 7 : promote(i)
-			-1 : if i.x == 0: promote(i)
 		if i.x == var2 and i.y == var1:
-			board[var2][var1] = board[selected_piece.x][selected_piece.y]
-			board[selected_piece.x][selected_piece.y] = 0
+			# Handle King and Rook state updates (Castling flags)
+			match board[int(selected_piece.x)][int(selected_piece.y)]:
+				6: 
+					if selected_piece.x == 0 and selected_piece.y == 4:
+						white_king = true
+						if end_pos.y == 2:
+							white_rook_left = true
+							white_rook_right = true
+							board[0][0] = 0
+							board[0][3] = 4
+						elif end_pos.y == 6:
+							white_rook_left = true
+							white_rook_right = true
+							board[0][7] = 0
+							board[0][5] = 4
+				-6: 
+					if selected_piece.x == 7 and selected_piece.y == 4:
+						black_king = true
+						if end_pos.y == 2:
+							black_rook_left = true
+							black_rook_right = true
+							board[7][0] = 0
+							board[7][3] = -4
+						elif end_pos.y == 6:
+							black_rook_left = true
+							black_rook_right = true
+							board[7][7] = 0
+							board[7][5] = -4
+				4: 
+					if int(selected_piece.x) == 0 and int(selected_piece.y) == 0: 
+						white_rook_left = true
+					elif int(selected_piece.x) == 0 and int(selected_piece.y) == 7: 
+						white_rook_right = true
+				-4:
+					if int(selected_piece.x) == 7 and int(selected_piece.y) == 0: 
+						black_rook_left = true
+					elif int(selected_piece.x) == 7 and int(selected_piece.y) == 7: 
+						black_rook_right = true
+						
+			if !just_now: en_passent = null
+			# Execute normal move
+			board[var2][var1] = board[int(selected_piece.x)][int(selected_piece.y)]
+			board[int(selected_piece.x)][int(selected_piece.y)] = 0
+			
+			# Handle Pawn Promotion after moving
+			if board[var2][var1] == 1 and var2 == 7:
+				promote(Vector2(var2, var1))
+				if var2 == 3 && selected_piece.x == 1:
+					en_passent = Vector2(var2, var1)
+					just_now = true
+				elif en_passent != null:
+					if en_passent.y == i.y and selected_piece.y != i.y and en_passent.x == selected_piece.x:
+						board[en_passent.x][en_passent.y] = 0
+			elif board[var2][var1] == -1 and var2 == 0:
+				promote(Vector2(var2, var1))
+				if var2 == 4 && selected_piece.x == 6:
+					en_passent = Vector2(var2, var1)
+					just_now = true
+				elif en_passent != null:
+					if en_passent.y == i.y and selected_piece.y != i.y and en_passent.x == selected_piece.x:
+						board[en_passent.x][en_passent.y] = 0
+
 			white = !white
 			draw_board()
-			break;
+			break
+
 	delete_dots()
 	state = false
 
@@ -214,9 +285,20 @@ func get_king_moves():
 				_moves.append(pos)
 			elif is_opponent(pos):
 				_moves.append(pos)
-				
+			
+	if white and !white_king:
+		if !white_rook_left and is_empty(Vector2(0, 1)) and is_empty(Vector2(0, 2)) and is_empty(Vector2(0, 3)):
+			_moves.append(Vector2(0, 2))
+		if !white_rook_right and is_empty(Vector2(0, 5)) and is_empty(Vector2(0, 6)):
+			_moves.append(Vector2(0, 6))
+	if !white and !black_king:
+		if !black_rook_left and is_empty(Vector2(7, 1)) and is_empty(Vector2(7, 2)) and is_empty(Vector2(7, 3)):
+			_moves.append(Vector2(7, 2))
+		if !black_rook_right and is_empty(Vector2(7, 5)) and is_empty(Vector2(7, 6)):
+			_moves.append(Vector2(7, 6))
+			
 	return _moves
-	
+
 func get_bishop_moves():
 	var _moves = []
 	# Diagonal offsets: (row_step, col_step)
@@ -253,7 +335,7 @@ func get_knight_moves():
 	return _moves
 
 func get_pawns_moves():
-	var _moves = []
+	var _moves = []	
 	var direction
 	var is_frist_move = false
 	
@@ -262,6 +344,9 @@ func get_pawns_moves():
 	
 	if white and selected_piece.x == 1 || !white and selected_piece.x == 6:
 		is_frist_move = true
+	
+	if en_passent != null and  (white and selected_piece.x == 4 || !white and selected_piece.x == 3) and abs(en_passent.y - selected_piece.y) == 1:
+		_moves.append(en_passent + direction)
 		
 	var pos = selected_piece + direction
 	if is_empty(pos): _moves.append(pos)
