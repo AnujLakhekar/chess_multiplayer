@@ -9,6 +9,14 @@
 [ext_resource type="Texture2D" uid="uid://bmmt31nb526bf" path="res://Assets/black_bishop.png" id="6_47hqa"]
 [ext_resource type="Texture2D" uid="uid://bhr8c2pb02smt" path="res://Assets/black_rook.png" id="7_bk32q"]
 [ext_resource type="Texture2D" uid="uid://bs6nmydq4udho" path="res://Assets/black_queen.png" id="8_47hqa"]
+[ext_resource type="Script" uid="uid://d3bxd2fph220r" path="res://scripts/audio_player.gd" id="10_8e33y"]
+[ext_resource type="AudioStream" uid="uid://b53iqk0dcag2g" path="res://Assets/audio/move-self.mp3" id="10_bk32q"]
+[ext_resource type="AudioStream" uid="uid://dvtnyb0q7gsnl" path="res://Assets/audio/castle.mp3" id="11_tsqyq"]
+[ext_resource type="AudioStream" uid="uid://dk4fo3tiyvely" path="res://Assets/audio/capture.mp3" id="12_8e33y"]
+[ext_resource type="AudioStream" uid="uid://bymxx3nr1ovg" path="res://Assets/audio/move-check.mp3" id="13_nvhh0"]
+[ext_resource type="AudioStream" uid="uid://7xxd7gdlcfsq" path="res://Assets/audio/notify.mp3" id="14_kbk2e"]
+[ext_resource type="AudioStream" uid="uid://dutaixhol5nrk" path="res://Assets/audio/promote.mp3" id="15_0jigb"]
+[ext_resource type="AudioStream" uid="uid://tnvxl08g8so8" path="res://Assets/audio/bg.mp3" id="17_nvhh0"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7essg"]
 texture = ExtResource("1_7538n")
@@ -19,6 +27,30 @@ texture = ExtResource("1_7538n")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pqvm3"]
 texture = ExtResource("2_7essg")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_47hqa"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.225, 0.225, 0.225, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bk32q"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.225, 0.225, 0.225, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qj2y4"]
 texture = ExtResource("3_pqvm3")
@@ -38,11 +70,39 @@ texture = ExtResource("7_bk32q")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_bk32q"]
 texture = ExtResource("8_47hqa")
 
+[sub_resource type="LabelSettings" id="LabelSettings_nvhh0"]
+font_size = 64
+font_color = Color(0.96862745, 0.91764706, 0.8784314, 1)
+
 [node name="main" type="Node2D" unique_id=922497275]
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1256450927]
+[node name="bg" type="ColorRect" parent="." unique_id=479444114]
+offset_left = -141.0
+offset_top = -165.0
+offset_right = 175.0
+offset_bottom = 12.0
+color = Color(0.11372549, 0.27058825, 0.2, 1)
 
-[node name="white_promotion" type="Control" parent="CanvasLayer" unique_id=299071702]
+[node name="GameCanvas" type="CanvasLayer" parent="." unique_id=1256450927]
+
+[node name="promotion_bg" type="ColorRect" parent="GameCanvas" unique_id=1663465705]
+visible = false
+offset_left = 153.0
+offset_top = 288.0
+offset_right = 559.0
+offset_bottom = 413.0
+color = Color(0, 0, 0, 1)
+metadata/_edit_group_ = true
+
+[node name="bg_child" type="ColorRect" parent="GameCanvas/promotion_bg" unique_id=1425444995]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 9.0
+offset_right = 400.0
+offset_bottom = 116.0
+color = Color(0.36078432, 0.27058825, 0.10980392, 1)
+
+[node name="white_promotion" type="Control" parent="GameCanvas" unique_id=299071702]
 visible = false
 layout_mode = 3
 anchors_preset = 8
@@ -57,7 +117,7 @@ offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="2" type="Button" parent="CanvasLayer/white_promotion" unique_id=797514257 groups=["white"]]
+[node name="2" type="Button" parent="GameCanvas/white_promotion" unique_id=797514257 groups=["white"]]
 layout_mode = 0
 offset_right = 100.0
 offset_bottom = 100.0
@@ -69,16 +129,18 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_7essg")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_tt04m")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_7538n")
 
-[node name="3" type="Button" parent="CanvasLayer/white_promotion" unique_id=1379376187 groups=["white"]]
+[node name="3" type="Button" parent="GameCanvas/white_promotion" unique_id=1379376187 groups=["white"]]
 layout_mode = 0
 offset_left = 100.0
 offset_right = 200.0
 offset_bottom = 100.0
 theme_override_styles/normal = SubResource("StyleBoxTexture_pqvm3")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_47hqa")
+theme_override_styles/hover = SubResource("StyleBoxFlat_bk32q")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_tt04m")
 theme_override_styles/focus = SubResource("StyleBoxEmpty_7538n")
 
-[node name="4" type="Button" parent="CanvasLayer/white_promotion" unique_id=1246093376 groups=["white"]]
+[node name="4" type="Button" parent="GameCanvas/white_promotion" unique_id=1246093376 groups=["white"]]
 layout_mode = 0
 offset_left = 200.0
 offset_right = 300.0
@@ -90,7 +152,7 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_qj2y4")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_tt04m")
 theme_override_styles/focus = SubResource("StyleBoxTexture_qj2y4")
 
-[node name="5" type="Button" parent="CanvasLayer/white_promotion" unique_id=2138533854 groups=["white"]]
+[node name="5" type="Button" parent="GameCanvas/white_promotion" unique_id=2138533854 groups=["white"]]
 layout_mode = 0
 offset_left = 300.0
 offset_right = 400.0
@@ -101,7 +163,7 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_nmbla")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_tt04m")
 theme_override_styles/focus = SubResource("StyleBoxTexture_nmbla")
 
-[node name="black_promotion" type="Control" parent="CanvasLayer" unique_id=1603682048]
+[node name="black_promotion" type="Control" parent="GameCanvas" unique_id=1603682048]
 visible = false
 layout_mode = 3
 anchors_preset = 8
@@ -116,7 +178,7 @@ offset_bottom = 50.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="2" type="Button" parent="CanvasLayer/black_promotion" unique_id=1973427431 groups=["black"]]
+[node name="2" type="Button" parent="GameCanvas/black_promotion" unique_id=1973427431 groups=["black"]]
 layout_mode = 0
 offset_right = 100.0
 offset_bottom = 100.0
@@ -126,7 +188,7 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_4rajj")
 theme_override_styles/disabled = SubResource("StyleBoxEmpty_tt04m")
 theme_override_styles/focus = SubResource("StyleBoxTexture_4rajj")
 
-[node name="3" type="Button" parent="CanvasLayer/black_promotion" unique_id=1406828193 groups=["black"]]
+[node name="3" type="Button" parent="GameCanvas/black_promotion" unique_id=1406828193 groups=["black"]]
 layout_mode = 0
 offset_left = 100.0
 offset_right = 200.0
@@ -138,7 +200,7 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_b580w")
 theme_override_styles/disabled = SubResource("StyleBoxTexture_b580w")
 theme_override_styles/focus = SubResource("StyleBoxTexture_b580w")
 
-[node name="4" type="Button" parent="CanvasLayer/black_promotion" unique_id=1721250298 groups=["black"]]
+[node name="4" type="Button" parent="GameCanvas/black_promotion" unique_id=1721250298 groups=["black"]]
 layout_mode = 0
 offset_left = 200.0
 offset_right = 300.0
@@ -150,7 +212,7 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_hh3jc")
 theme_override_styles/disabled = SubResource("StyleBoxTexture_hh3jc")
 theme_override_styles/focus = SubResource("StyleBoxTexture_hh3jc")
 
-[node name="5" type="Button" parent="CanvasLayer/black_promotion" unique_id=1372810078 groups=["black"]]
+[node name="5" type="Button" parent="GameCanvas/black_promotion" unique_id=1372810078 groups=["black"]]
 layout_mode = 0
 offset_left = 300.0
 offset_right = 400.0
@@ -161,10 +223,104 @@ theme_override_styles/hover = SubResource("StyleBoxTexture_bk32q")
 theme_override_styles/disabled = SubResource("StyleBoxTexture_bk32q")
 theme_override_styles/focus = SubResource("StyleBoxTexture_bk32q")
 
+[node name="game_complete" type="Control" parent="GameCanvas" unique_id=1488157045]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 703.0
+offset_bottom = 702.0
+
+[node name="winnerBg" type="ColorRect" parent="GameCanvas/game_complete" unique_id=574773917]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 1.0
+offset_right = 696.0
+offset_bottom = 698.0
+color = Color(0.11372549, 0.27058825, 0.2, 1)
+
+[node name="Winner" type="Label" parent="GameCanvas/game_complete" unique_id=1141447965]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 238.0
+offset_top = 89.0
+offset_right = 462.0
+offset_bottom = 177.0
+theme_override_colors/font_color = Color(0.96862745, 0.91764706, 0.8784314, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "Winner"
+label_settings = SubResource("LabelSettings_nvhh0")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Winner_Name" type="Label" parent="GameCanvas/game_complete" unique_id=1009393812]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 244.0
+offset_top = 254.0
+offset_right = 468.0
+offset_bottom = 342.0
+theme_override_colors/font_color = Color(0.96862745, 0.91764706, 0.8784314, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "Winner"
+label_settings = SubResource("LabelSettings_nvhh0")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="GameCanvas/game_complete" unique_id=1017202938]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 173.0
+offset_top = 478.0
+offset_right = 528.0
+offset_bottom = 583.0
+theme_override_font_sizes/font_size = 60
+text = "Restart"
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=311904810]
 position = Vector2(72, -72)
-zoom = Vector2(4, 4)
+zoom = Vector2(4.8, 4.8)
 
 [node name="board" parent="." unique_id=447031581 instance=ExtResource("1_tt04m")]
 position = Vector2(0, -144)
 centered = false
+
+[node name="AudioPlayer" type="Node2D" parent="." unique_id=1100869745]
+script = ExtResource("10_8e33y")
+
+[node name="move" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=74997703]
+unique_name_in_owner = true
+stream = ExtResource("10_bk32q")
+volume_db = -10.0
+
+[node name="castle" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=280747019]
+unique_name_in_owner = true
+stream = ExtResource("11_tsqyq")
+volume_db = -10.0
+
+[node name="capture" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=2094292565]
+unique_name_in_owner = true
+stream = ExtResource("12_8e33y")
+volume_db = -10.0
+
+[node name="move_dot" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=2005205822]
+unique_name_in_owner = true
+stream = ExtResource("13_nvhh0")
+volume_db = -10.0
+
+[node name="notify" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=1328629029]
+unique_name_in_owner = true
+stream = ExtResource("14_kbk2e")
+volume_db = -10.0
+
+[node name="promote" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=768443074]
+unique_name_in_owner = true
+stream = ExtResource("15_0jigb")
+volume_db = -10.0
+
+[node name="bg" type="AudioStreamPlayer" parent="AudioPlayer" unique_id=1697921968]
+unique_name_in_owner = true
+stream = ExtResource("17_nvhh0")
+volume_db = -25.0
